@@ -10,11 +10,59 @@
 	<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
 	<script type="text/javascript" src="jquery.min.js"></script>
 	<script type="text/javascript" src="qrcode.js"></script>
+	<script type="text/javascript" src="secret.js"></script>
+	<style>
+		body {
+			font-size: 20px;
+		}
+
+		input {
+			font-size: 16px;
+		}
+
+	</style>
 </head>
 
 <body>
-	<input id="text" type="text" value="http://jindo.dev.naver.com/collie" style="width:80%" /><br />
-	<div id="qrcode" style="width:1000px; height:1000px; margin-top:15px;"></div>
+
+	<table>
+		<tr>
+			<th>
+				<div>
+					<p>QR CODE ก่อนเข้ารหัส</p>
+					<div id="qrcode" style="width:500px; height:500px; margin-top:15px;"></div>
+				</div>
+			</th>
+			<th>
+				<div>
+					<p>QR CODE หลังเข้ารหัส</p>
+					<div id="qrcode2" style="width:500px; height:500px; margin-top:15px;margin-left:100px;"></div>
+				</div>
+			</th>
+		</tr>
+	</table>
+
+	<h1>เครื่องสร้าง QR CODE (เข้ารหัส)</h1>
+	<p><b>กุญแจลับ</b> ที่เครื่องเข้ารหัส</p>
+	<input id="key" type="text" value="กุ้งก้ามกำลังกินกั้ง" style="width:100%" /><br />
+	<p>ข้อความ <b>ก่อนเข้ารหัส</b>:</p>
+	<input id="text" type="text" value="date=11/08/65,time=15.55,type=white,size=OOO,weight=30kg,gate=2"
+		style="width:100%" /><br />
+	<p> ข้อความ <b>หลังเข้ารหัส</b>:
+	<div id="secretText"></div>
+	</p>
+	<h1>เครื่องถอดรหัส</h1>
+	<p><b>กุญแจลับ</b> ที่เครื่องถอดรหัส</p>
+	<input id="keyAtReader" type="text" value="กุ้งก้ามกำลังกินกั้ง" style="width:100%" /><br />
+	<p><b>ข้อความ</b> ที่เครื่องถอดรหัส</p>
+	<input id="textAtReader" type="text"
+		value="3b3e2b3a626e6e706f6770696a732b36323a626e6a716a6a732b262f3a622837362b3a732c36253a6210101073283a3638372b626c6f343873383e2b3a626d"
+		style="width:100%" /><br />
+	<p>
+		ข้อความที่ <b>ผ่านการถอดรหัส</b>:
+	</p>
+	<p id="resultWithReader"></p>
+
 
 	<script type="text/javascript">
 		var qrcode = new QRCode(document.getElementById("qrcode"), {
@@ -22,27 +70,105 @@
 			height: 500
 		});
 
-		function makeCode() {
-			var elText = document.getElementById("text");
+		var qrcode2 = new QRCode(document.getElementById("qrcode2"), {
+			width: 500,
+			height: 500
+		});
 
-			if (!elText.value) {
+		function makeQrCode() {
+
+			console.log('\n=== AT GENERATOR ===')
+			// text that you did not want anyone to read
+			var targetText = document.getElementById('text').value;
+			var targetTextElement = document.getElementById('text');
+
+			if (!targetText) {
 				alert("Input a text");
-				elText.focus();
+				targetTextElement.focus();
 				return;
 			}
 
-			qrcode.makeCode(elText.value);
+			// create a secret key to decrypt the secret text
+			var secretKey = document.getElementById('key').value;
+			// create a secret text generator
+			var secretTextGenerator = encoder(secretKey);
+			// create a secret text
+			var secretText = secretTextGenerator(targetText);
+			// to read the secret text, you need to create a reader that have same secret key to read it
+			var secretTextReader = decoder(secretKey);
+
+			// show on console
+			console.log('target key    = ', targetText);
+			console.log('secret key    = ', secretKey);
+			console.log('secret text   = ', secretText);
+
+			// write secret text
+			document.getElementById('secretText').innerHTML = secretText;
+			// generate QR CODE before encode
+			qrcode.makeCode(targetText);
+			// generate QR CODE after encode
+			qrcode2.makeCode(secretText);
+
+			/* === READER === */
+			console.log('\n=== AT READER ===')
+			// text that you did not want anyone to read
+			secretText = document.getElementById('textAtReader').value;
+			// create a secret key to decrypt the secret text
+			secretKey = document.getElementById('keyAtReader').value;
+			// to read the secret text, you need to create a reader that have same secret key to read it
+			secretTextReader = decoder(secretKey);
+			// use the reader to turn secret text into normal text
+			const resultText = secretTextReader(secretText);
+
+			// show on console
+			console.log('secret key    = ', secretKey);
+			console.log('secret text   = ', secretText);
+			console.log('readable text = ', resultText);
+
+			// set result text, read qr code with reader
+			document.getElementById('resultWithReader').innerText = resultText;
+
 		}
 
-		makeCode();
+		makeQrCode();
 
 		$("#text").
 			on("blur", function () {
-				makeCode();
+				makeQrCode();
 			}).
 			on("keydown", function (e) {
 				if (e.keyCode == 13) {
-					makeCode();
+					makeQrCode();
+				}
+			});
+
+		$("#key").
+			on("blur", function () {
+				makeQrCode();
+			}).
+			on("keydown", function (e) {
+				if (e.keyCode == 13) {
+					makeQrCode();
+				}
+			});
+
+		$("#textAtReader").
+			on("blur", function () {
+				makeQrCode();
+			}).
+			on("keydown", function (e) {
+				if (e.keyCode == 13) {
+					makeQrCode();
+				}
+			});
+
+		$("#keyAtReader").
+			on("blur", function () {
+				makeQrCode();
+			}).
+			on("keydown", function (e) {
+				if (e.keyCode == 13) {
+					makeQrCode();
 				}
 			});
 	</script>

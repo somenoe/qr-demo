@@ -20,25 +20,29 @@ const decoder = salt => {
     .join('');
 }
 
-// create a secret key to decrypt the secret text
-const secretKey = 'SecretTextKey';
+const testOnConsole = () => {
 
-// text that you did not want anyone to read
-const targetText = 'the secret string';
+  // create a secret key to decrypt the secret text
+  const secretKey = 'SecretTextKey';
 
-// create a secret text generator
-const secretTextGenerator = encoder(secretKey);
+  // text that you did not want anyone to read
+  const targetText = 'the secret string';
 
-// create a secret text
-const secretText = secretTextGenerator(targetText);
+  // create a secret text generator
+  const secretTextGenerator = encoder(secretKey);
 
-// to read the secret text, you need to create a reader that have same secret key to read it
-const secretTextReader = decoder(secretKey);
+  // create a secret text
+  const secretText = secretTextGenerator(targetText);
 
-// use the reader to turn secret text into normal text
-const readableText = secretTextReader(secretText);
+  // to read the secret text, you need to create a reader that have same secret key to read it
+  const secretTextReader = decoder(secretKey);
 
-console.log('target key    = ', targetText);
-console.log('secret key    = ', secretKey);
-console.log('secret text   = ', secretText);
-console.log('readable text = ', readableText);
+  // ! cannot decode to THAI
+  // use the reader to turn secret text into normal text
+  const resultText = secretTextReader(secretText);
+
+  console.log('target key    = ', targetText);
+  console.log('secret key    = ', secretKey);
+  console.log('secret text   = ', secretText);
+  console.log('readable text = ', resultText);
+}
