@@ -30,13 +30,13 @@
 			<th>
 				<div>
 					<p>QR CODE ก่อนเข้ารหัส</p>
-					<div id="qrcode" style="width:500px; height:500px; margin-top:15px;"></div>
+					<div id="qrcode" style="width:250px; height:250px; margin-top:15px;"></div>
 				</div>
 			</th>
 			<th>
 				<div>
 					<p>QR CODE หลังเข้ารหัส</p>
-					<div id="qrcode2" style="width:500px; height:500px; margin-top:15px;margin-left:100px;"></div>
+					<div id="qrcode2" style="width:250px; height:250px; margin-top:15px;margin-left:150px;"></div>
 				</div>
 			</th>
 		</tr>
@@ -66,13 +66,13 @@
 
 	<script type="text/javascript">
 		var qrcode = new QRCode(document.getElementById("qrcode"), {
-			width: 500,
-			height: 500
+			width: 250,
+			height: 250
 		});
 
 		var qrcode2 = new QRCode(document.getElementById("qrcode2"), {
-			width: 500,
-			height: 500
+			width: 250,
+			height: 250
 		});
 
 		function makeQrCode() {
